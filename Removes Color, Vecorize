@@ -1,0 +1,146 @@
+
+Load the image: Use a suitable image processing library, such as OpenCV in Python or ImageMagick in other programming languages, to load the image into your application.
+
+Convert to grayscale: Convert the loaded image to grayscale using the appropriate function or method provided by the image processing library. 
+This will remove all color information from the image, leaving only grayscale intensity values.
+
+Thresholding: Apply a thresholding operation to the grayscale image to create a binary image, where pixels are classified as either black or white based on their intensity values. 
+This can be done using a thresholding function or method provided by the image processing library, which allows you to set a threshold value to determine the cutoff between black and white pixels.
+
+Vectorization: Use vectorization techniques, such as edge detection or contour detection, to extract the shapes or objects from the binary image. 
+This can be achieved using functions or methods provided by the image processing library, which allow you to detect edges or contours in the image.
+
+Convert to vectors: Once you have extracted the shapes or objects as contours or edges, you can represent them as vector graphics using suitable data structures or formats,
+such as SVG (Scalable Vector Graphics) or EPS (Encapsulated PostScript). This can involve converting the contour points or edge coordinates into vector graphics primitives,
+such as lines, curves, or polygons, and storing them in a vector format.
+
+WORKING ASTROID V1
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Processing App</title>
+    <style>
+      body {
+  background-color: black;
+  background-image: url(https://cdn.discordapp.com/attachments/1089384025803722857/1099854610451140738/RajaToonz_single_astroid_c950e657-9aa3-412e-91bd-114e9c87dd27.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: moveAstroid 20s linear infinite;
+}
+
+@keyframes moveAstroid {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+
+#asteroids {
+  position: fixed;
+  top: 0;
+  left: -200px;
+  animation: asteroid-fall 10s linear infinite;
+}
+
+@keyframes asteroid-fall {
+  0% {
+    transform: translate(0, -100px);
+  }
+  100% {
+    transform: translate(500px, 800px);
+  }
+}
+
+        h1 {
+            font-family: "Comic Sans MS", cursive;
+            color: #1e90ff; /* baby blue color */
+            display: inline-block;
+            background-color: #fff; /* white background color */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Processing App</h1>
+    <input type="file" id="uploadInput" accept="image/*" style="display:none">
+    <canvas id="canvas1" width="400" height="400"></canvas>
+    <canvas id="canvas2" width="400" height="400"></canvas>
+    <br>
+    <button onclick="uploadImage()">Upload Image</button>
+    <button onclick="removeColors()">Remove Colors</button>
+    <button onclick="saveImage()">Save Image</button>
+    <br>
+    <span id="errorMessage"></span>
+    <script>
+        const canvas1 = document.getElementById('canvas1');
+        const canvas2 = document.getElementById('canvas2');
+        const ctx1 = canvas1.getContext('2d');
+        const ctx2 = canvas2.getContext('2d');
+        let img;
+
+        function uploadImage() {
+            document.getElementById('uploadInput').click();
+        }
+
+        function removeColors() {
+            if (!img) {
+                document.getElementById('errorMessage').innerText = 'Please upload an image first.';
+                return;
+            }
+            const imageData = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const grayscale = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = grayscale;
+                data[i + 1] = grayscale;
+                data[i + 2] = grayscale;
+            }
+            ctx2.putImageData(imageData, 0, 0);
+        }
+
+        function handleImageUpload() {
+            const fileInput = document.getElementById('uploadInput');
+            const file = fileInput.files[0];
+            const imageType = /image.*/;
+
+            if (!file) {
+                return;
+            }
+
+            if (!file.type.match(imageType)) {
+                document.getElementById('errorMessage').innerText = 'Invalid file type. Please upload an image file.';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img = new Image();
+                img.onload = function () {
+                    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+                    ctx1.drawImage(img, 0, 0, canvas1.width, canvas1.height);
+                    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+                    document.getElementById('errorMessage').innerText = '';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.href = canvas2.toDataURL(); // Convert canvas to data URL
+            link.download = 'vector_image.png'; // Set the download filename
+            link.click(); // Trigger download
+        }
+
+        document.getElementById('uploadInput').addEventListener('change', handleImageUpload);
+    </script>
+</body>
+</html>
